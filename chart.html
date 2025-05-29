@@ -1,76 +1,22 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Grafic Migrene</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-      max-width: 700px;
-      margin: auto;
-    }
-    canvas {
-      max-width: 100%;
-    }
-    a {
-      display: inline-block;
-      margin-top: 1rem;
-      text-decoration: none;
-      color: royalblue;
-    }
-  </style>
 </head>
 <body>
-  <h1>Grafic Migrene</h1>
-  <canvas id="migraineChart"></canvas>
-  <a href="index.html">⬅️ Înapoi la formular</a>
+  <div class="container p-4 max-w-3xl mx-auto">
+    <h1 class="title">Grafic Migrene</h1>
+    <canvas id="migraineChart" height="150"></canvas>
 
-  <script>
-    const LOCAL_STORAGE_KEY = 'clusterMigraineLog';
-    const data = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+    <nav class="mt-6">
+      <a href="index.html">⬅️ Înapoi la Adaugă Episod</a>
+    </nav>
+  </div>
 
-    // Agregăm severitatea per zi
-    const grouped = {};
-    data.forEach(entry => {
-      if (!entry.date || entry.severity === '') return;
-      if (!grouped[entry.date]) grouped[entry.date] = 0;
-      grouped[entry.date] += parseInt(entry.severity);
-    });
-
-    const labels = Object.keys(grouped).sort();
-    const values = labels.map(date => grouped[date]);
-
-    const ctx = document.getElementById('migraineChart');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Număr total pastile pe zi',
-          data: values,
-          fill: false,
-          borderColor: 'royalblue',
-          tension: 0.1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1
-            }
-          }
-        }
-      }
-    });
-  </script>
+  <script src="chart.js"></script>
 </body>
 </html>

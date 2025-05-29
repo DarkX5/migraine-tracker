@@ -2,90 +2,23 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editează Episoade Migrene</title>
-  <style>
-    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
-    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-    .entry { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; }
-    .entry input, .entry textarea { display: block; width: 100%; margin-bottom: 0.5rem; padding: 0.25rem; }
-    button { margin-right: 0.5rem; padding: 0.4rem 0.8rem; }
-    .pagination { margin-top: 1rem; text-align: center; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editare Episoade Migrene</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Editează Episoade</h1>
-  <div id="entries"></div>
-  <div class="pagination">
-    <button id="prev">← Înapoi</button>
-    <span id="pageLabel"></span>
-    <button id="next">Înainte →</button>
+  <div class="container p-4 max-w-2xl mx-auto">
+    <h1 class="title">Editează / Șterge Episoade Migrene</h1>
+
+    <div id="entriesContainer" class="space-y-4"></div>
+
+    <div id="pagination" class="mt-4 flex justify-center space-x-2"></div>
+
+    <nav class="mt-6">
+      <a href="index.html">⬅️ Înapoi la Adaugă Episod</a>
+    </nav>
   </div>
-  <br />
-  <a href="index.html">⬅️ Înapoi la înregistrare</a>
 
-  <script>
-    const LOCAL_STORAGE_KEY = 'clusterMigraineLog';
-    const entriesPerPage = 5;
-    let page = 0;
-    let entries = [];
-
-    function loadEntries() {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      entries = saved ? JSON.parse(saved) : [];
-      renderPage();
-    }
-
-    function renderPage() {
-      const container = document.getElementById('entries');
-      container.innerHTML = '';
-      const start = page * entriesPerPage;
-      const paginated = entries.slice(start, start + entriesPerPage);
-
-      paginated.forEach((entry, idx) => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-          <input type="date" value="${entry.date}" data-field="date" />
-          <input type="time" value="${entry.time}" data-field="time" />
-          <input type="number" placeholder="Severitate (1-10)" value="${entry.severity}" data-field="severity" />
-          <input placeholder="Durată atac (minute)" value="${entry.duration}" data-field="duration" />
-          <input placeholder="Exerciții? (Da/Nu)" value="${entry.exercise}" data-field="exercise" />
-          <input placeholder="Detalii exercițiu" value="${entry.exerciseDetails}" data-field="exerciseDetails" />
-          <input placeholder="Factor declanșator" value="${entry.trigger}" data-field="trigger" />
-          <textarea placeholder="Observații" data-field="notes">${entry.notes}</textarea>
-          <div>
-            <button onclick="saveEntry(${start + idx}, this.parentNode.parentNode)">💾 Salvează</button>
-            <button onclick="confirmDelete(${start + idx})">🗑️ Șterge</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-
-      document.getElementById('pageLabel').textContent = `Pagina ${page + 1} din ${Math.ceil(entries.length / entriesPerPage)}`;
-    }
-
-    function saveEntry(index, container) {
-      const inputs = container.querySelectorAll('[data-field]');
-      const updated = {};
-      inputs.forEach(i => updated[i.dataset.field] = i.value);
-      entries[index] = { ...entries[index], ...updated };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
-      alert('Salvat!');
-    }
-
-    function confirmDelete(index) {
-      if (confirm('Sigur vrei să ștergi acest episod?')) {
-        entries.splice(index, 1);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
-        renderPage();
-      }
-    }
-
-    document.getElementById('prev').onclick = () => { if (page > 0) { page--; renderPage(); } };
-    document.getElementById('next').onclick = () => { if ((page + 1) * entriesPerPage < entries.length) { page++; renderPage(); } };
-
-    loadEntries();
-  </script>
+  <script src="edit.js"></script>
 </body>
 </html>

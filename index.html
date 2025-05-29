@@ -2,84 +2,48 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Migrene Tracker</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-      max-width: 600px;
-      margin: auto;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 0.5rem;
-      margin: 0.25rem 0;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: royalblue;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #4169e1;
-    }
-    a {
-      color: royalblue;
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 1rem;
-    }
-  </style>
 </head>
 <body>
-  <h1>Migrene Tracker</h1>
-  <form id="entryForm">
-    <input type="date" name="date" id="date" required />
-    <input type="time" name="time" id="time" required />
-    <input type="number" name="severity" id="severity" placeholder="Număr pastile Sumatriptan (0-5)" min="0" max="5" required />
-    <input type="text" name="duration" id="duration" placeholder="Durată atac (minute)" />
-    <input type="text" name="exercise" id="exercise" placeholder="Exerciții? (Da/Nu)" value="Da" />
-    <input type="text" name="exerciseDetails" id="exerciseDetails" placeholder="Detalii exercițiu" />
-    <input type="text" name="trigger" id="trigger" placeholder="Factor declanșator" />
-    <textarea name="notes" id="notes" placeholder="Observații"></textarea>
-    <button type="submit">Adaugă episod</button>
-  </form>
+  <div class="container p-4 max-w-md mx-auto">
+    <h1 class="title">Jurnal Migrene Cluster</h1>
 
-  <a href="edit.html">Editează episoade</a>
-</br>
-  <a href="chart.html" style="color: royalblue;">📈 Vezi graficul migrenelor</a>
+    <form id="migraineForm" class="card p-4 space-y-3">
+      <input name="date" type="date" required />
+      <input name="time" type="time" required />
+      <label for="severity">Număr pastile Sumatriptan (0-5):</label>
+      <input name="severity" type="number" min="0" max="5" value="1" placeholder="Număr pastile Sumatriptan (0-5)" required />
+      <label for="duration">Durată atac (minute):</label>
+      <input name="duration" type="number" value="15" placeholder="Durată atac (minute)" required />
+      <label>
+        Exerciții? 
+        <select name="exercise">
+          <option value="Da" selected>Da</option>
+          <option value="Nu">Nu</option>
+        </select>
+      </label>
+    </br>
+      <label for="exerciseDetails">Detalii exercițiu:</label>
+      <input name="exerciseDetails" placeholder="Detalii exercițiu" />
+      <label for="trigger">Factor declanșator:</label>
+      <input name="trigger" placeholder="Factor declanșator" />
+      <label for="notes">Observații:</label>
+      <textarea name="notes" placeholder="Observații"></textarea>
+      <label for="verapamilInput">Verapamil (0-10):</label>
+      <input name="verapamil" type="number" min="0" max="10" placeholder="Verapamil (0-10)" value="6" />
+      <label for="medrolInput">Medrol (0-10):</label>
+      <input name="medrol" type="number" min="0" max="10" placeholder="Medrol (0-10)" value="0" />
+      <button id="addEntry" type="submit" style="background-color: royalblue; color: white;">Adaugă episod</button>
+    </form>
 
-  <script>
-    const LOCAL_STORAGE_KEY = 'clusterMigraineLog';
-    const form = document.getElementById('entryForm');
+    <nav class="links mt-4 space-x-4">
+      <a href="edit.html">Vezi / Editează episoade</a>
+      <a href="chart.html">Grafic Migrene</a>
+    </nav>
+  </div>
 
-    document.getElementById('date').valueAsDate = new Date();
-    const now = new Date();
-    document.getElementById('time').value = now.toTimeString().slice(0,5);
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const newEntry = {};
-      formData.forEach((value, key) => newEntry[key] = value);
-
-      if (!newEntry.date || !newEntry.time || newEntry.severity === '') {
-        alert('Completează minim data, ora și severitatea.');
-        return;
-      }
-
-      const saved = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-      saved.unshift(newEntry);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
-      form.reset();
-      document.getElementById('date').valueAsDate = new Date();
-      document.getElementById('time').value = new Date().toTimeString().slice(0,5);
-      alert('Episod salvat!');
-    });
-  </script>
+  <script src="index.js"></script>
 </body>
 </html>
