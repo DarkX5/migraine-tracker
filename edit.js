@@ -1,94 +1,167 @@
 const LOCAL_STORAGE_KEY = 'clusterMigraineLog';
-const entriesContainer = document.getElementById('entriesContainer');
-const paginationContainer = document.getElementById('pagination');
 
-let entries = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+const dateFilterInput = document.getElementById('dateFilter');
+const episodesContainer = document.getElementById('episodesContainer');
 
-const ITEMS_PER_PAGE = 5;
-let currentPage = 1;
+let entries = [];
 
-function renderPage(page = 1) {
-  entriesContainer.innerHTML = '';
-  paginationContainer.innerHTML = '';
+const todayStr = new Date().toISOString().split('T')[0];
+dateFilterInput.value = todayStr;
 
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  const pageItems = entries.slice(start, end);
-
-  pageItems.forEach((e, idx) => {
-    const globalIdx = start + idx;
-
-    const card = document.createElement('div');
-    card.className = 'card p-3';
-
-    card.innerHTML = `
-      <form data-index="${globalIdx}" class="edit-entry space-y-2">
-        <div><strong>${e.date} ${e.time}</strong></div>
-        <label>Număr pastile Sumatriptan (0-5): <input name="severity" type="number" min="0" max="5" value="${e.severity}" required></label>
-        <label>Durată atac (minute): <input name="duration" type="number" value="${e.duration || ''}"></label>
-        <label>Exerciții:
-          <select name="exercise">
-            <option value="Da" ${e.exercise === 'Da' ? 'selected' : ''}>Da</option>
-            <option value="Nu" ${e.exercise === 'Nu' ? 'selected' : ''}>Nu</option>
-          </select>
-        </label>
-        <label>Detalii exercițiu: <input name="exerciseDetails" type="text" value="${e.exerciseDetails || ''}"></label>
-        <label>Factor declanșator: <input name="trigger" type="text" value="${e.trigger || ''}"></label>
-        <label>Observații: <textarea name="notes">${e.notes || ''}</textarea></label>
-        <label>Verapamil (0-10): <input name="verapamil" type="number" min="0" max="10" value="${e.verapamil || '6'}"></label>
-        <label>Medrol (0-10): <input name="medrol" type="number" min="0" max="10" value="${e.medrol || '0'}"></label>
-        <button type="submit">Salvează</button>
-        <button type="button" class="delete-btn">Șterge</button>
-      </form>
-    `;
-
-    entriesContainer.appendChild(card);
-
-    const form = card.querySelector('form');
-    form.addEventListener('submit', ev => {
-      ev.preventDefault();
-      const idx = parseInt(form.getAttribute('data-index'));
-      const formData = new FormData(form);
-
-      entries[idx] = {
-        ...entries[idx],
-        severity: formData.get('severity'),
-        duration: formData.get('duration'),
-        exercise: formData.get('exercise'),
-        exerciseDetails: formData.get('exerciseDetails'),
-        trigger: formData.get('trigger'),
-        notes: formData.get('notes'),
-        verapamil: formData.get('verapamil'),
-        medrol: formData.get('medrol'),
-        sumatriptan: formData.get('severity')
-      };
-
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
-      alert('Episod salvat!');
-    });
-
-    form.querySelector('.delete-btn').addEventListener('click', () => {
-      if (confirm('Ești sigur că vrei să ștergi acest episod?')) {
-        const idx = parseInt(form.getAttribute('data-index'));
-        entries.splice(idx, 1);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
-        renderPage(currentPage);
-      }
-    });
-  });
-
-  // Render pagination
-  const totalPages = Math.ceil(entries.length / ITEMS_PER_PAGE);
-  for(let i=1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.disabled = (i === page);
-    btn.addEventListener('click', () => {
-      currentPage = i;
-      renderPage(currentPage);
-    });
-    paginationContainer.appendChild(btn);
-  }
+function loadEntries() {
+  const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+  entries = saved ? JSON.parse(saved) : [];
 }
 
-renderPage(currentPage);
+function saveEntries() {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
+}
+
+function renderEpisodes() {
+  const selectedDate = dateFilterInput.value;
+  episodesContainer.innerHTML = '';
+
+  const filteredEntries = entries.filter(e => e.date === selectedDate);
+
+  if (filteredEntries.length === 0) {
+    episodesContainer.innerHTML = `<p>Nu există episoade pentru această zi.</p>`;
+    return;
+  }
+
+  filteredEntries.forEach((episode, index) => {
+    const div = document.createElement('div');
+    div.style.border = '1px solid #ccc';
+    div.style.padding = '10px';
+    div.style.marginBottom = '10px';
+
+    // Creez inputuri pentru fiecare camp
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.value = episode.date || '';
+    dateInput.style.marginBottom = '4px';
+
+    const timeInput = document.createElement('input');
+    timeInput.type = 'time';
+    timeInput.value = episode.time || '';
+    timeInput.style.marginBottom = '4px';
+
+    const severityInput = document.createElement('input');
+    severityInput.type = 'number';
+    severityInput.min = '0';
+    severityInput.max = '5';
+    severityInput.value = episode.severity ?? 0;
+    severityInput.placeholder = 'Pastile Sumatripan (0-5)';
+    severityInput.style.marginBottom = '4px';
+
+    const durationInput = document.createElement('input');
+    durationInput.type = 'number';
+    durationInput.min = '0';
+    durationInput.value = episode.duration || '';
+    durationInput.placeholder = 'Durată atac (minute)';
+    durationInput.style.marginBottom = '4px';
+
+    const exerciseSelect = document.createElement('select');
+    ['Da', 'Nu'].forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt;
+      if (episode.exercise === opt) option.selected = true;
+      exerciseSelect.appendChild(option);
+    });
+    exerciseSelect.style.marginBottom = '4px';
+
+    const exerciseDetailsInput = document.createElement('input');
+    exerciseDetailsInput.type = 'text';
+    exerciseDetailsInput.value = episode.exerciseDetails || '';
+    exerciseDetailsInput.placeholder = 'Detalii exercițiu';
+    exerciseDetailsInput.style.marginBottom = '4px';
+
+    const triggerInput = document.createElement('input');
+    triggerInput.type = 'text';
+    triggerInput.value = episode.trigger || '';
+    triggerInput.placeholder = 'Factor declanșator';
+    triggerInput.style.marginBottom = '4px';
+
+    const verapamilInput = document.createElement('input');
+    verapamilInput.type = 'number';
+    verapamilInput.min = '0';
+    verapamilInput.max = '10';
+    verapamilInput.value = episode.verapamil ?? 6;
+    verapamilInput.placeholder = 'Pastile Verapamil (0-10)';
+    verapamilInput.style.marginBottom = '4px';
+
+    const medrolInput = document.createElement('input');
+    medrolInput.type = 'number';
+    medrolInput.min = '0';
+    medrolInput.max = '10';
+    medrolInput.value = episode.medrol ?? 0;
+    medrolInput.placeholder = 'Pastile Medrol (0-10)';
+    medrolInput.style.marginBottom = '4px';
+
+    const notesTextarea = document.createElement('textarea');
+    notesTextarea.value = episode.notes || '';
+    notesTextarea.placeholder = 'Observații';
+    notesTextarea.style.marginBottom = '4px';
+    notesTextarea.rows = 3;
+    notesTextarea.style.width = '100%';
+
+    div.appendChild(dateInput);
+    div.appendChild(timeInput);
+    div.appendChild(severityInput);
+    div.appendChild(durationInput);
+    div.appendChild(exerciseSelect);
+    div.appendChild(exerciseDetailsInput);
+    div.appendChild(triggerInput);
+    div.appendChild(verapamilInput);
+    div.appendChild(medrolInput);
+    div.appendChild(notesTextarea);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.style.marginRight = '10px';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Șterge';
+
+    div.appendChild(saveBtn);
+    div.appendChild(deleteBtn);
+
+    saveBtn.addEventListener('click', () => {
+      // Validari minimale
+      if (!dateInput.value) return alert('Data este obligatorie');
+      if (!timeInput.value) return alert('Ora este obligatorie');
+
+      episode.date = dateInput.value;
+      episode.time = timeInput.value;
+      episode.severity = Number(severityInput.value) || 0;
+      episode.duration = durationInput.value;
+      episode.exercise = exerciseSelect.value;
+      episode.exerciseDetails = exerciseDetailsInput.value;
+      episode.trigger = triggerInput.value;
+      episode.verapamil = Number(verapamilInput.value) || 6;
+      episode.medrol = Number(medrolInput.value) || 0;
+      episode.notes = notesTextarea.value;
+
+      saveEntries();
+      renderEpisodes();
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Ești sigur că vrei să ștergi acest episod?')) {
+        const globalIndex = entries.indexOf(episode);
+        if (globalIndex !== -1) {
+          entries.splice(globalIndex, 1);
+          saveEntries();
+          renderEpisodes();
+        }
+      }
+    });
+
+    episodesContainer.appendChild(div);
+  });
+}
+
+dateFilterInput.addEventListener('change', renderEpisodes);
+
+loadEntries();
+renderEpisodes();
