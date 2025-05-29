@@ -1,73 +1,83 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Migrene Tracker</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
-    input, textarea, button, select { display: block; width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; }
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: royalblue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #4169e1;
+    }
+    a {
+      color: royalblue;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Jurnal Migrene Cluster</h1>
+  <h1>Migrene Tracker</h1>
+  <form id="entryForm">
+    <input type="date" name="date" id="date" required />
+    <input type="time" name="time" id="time" required />
+    <input type="number" name="severity" id="severity" placeholder="Număr pastile Sumatriptan (0-5)" min="0" max="5" required />
+    <input type="text" name="duration" id="duration" placeholder="Durată atac (minute)" />
+    <input type="text" name="exercise" id="exercise" placeholder="Exerciții? (Da/Nu)" value="Da" />
+    <input type="text" name="exerciseDetails" id="exerciseDetails" placeholder="Detalii exercițiu" />
+    <input type="text" name="trigger" id="trigger" placeholder="Factor declanșator" />
+    <textarea name="notes" id="notes" placeholder="Observații"></textarea>
+    <button type="submit">Adaugă episod</button>
+  </form>
 
-  <label>Data</label>
-  <input id="date" type="date">
-  <label>Ora</label>
-  <input id="time" type="time">
-  <label>Severitate (nr pastile Sumatriptan, 0-5)</label>
-  <input id="severity" type="number" min="0" max="5">
-  <label>Durată atac (minute)</label>
-  <input id="duration" type="number">
-  <label>Exerciții fizice?</label>
-  <select id="exercise">
-    <option value="Da" selected>Da</option>
-    <option value="Nu">Nu</option>
-  </select>
-  <label>Detalii exercițiu</label>
-  <input id="exerciseDetails">
-  <label>Factor declanșator</label>
-  <input id="trigger">
-  <label>Observații</label>
-  <textarea id="notes"></textarea>
-  <button onclick="saveEntry()">Adaugă episod</button>
-  <button onclick="location.href='edit.html'">Editează episoadele</button>
+  <a href="edit.html">Editează episoade</a>
 
   <script>
-    const dateInput = document.getElementById('date');
-    const timeInput = document.getElementById('time');
+    const LOCAL_STORAGE_KEY = 'clusterMigraineLog';
+    const form = document.getElementById('entryForm');
 
+    document.getElementById('date').valueAsDate = new Date();
     const now = new Date();
-    dateInput.value = now.toISOString().split('T')[0];
-    timeInput.value = now.toTimeString().slice(0,5);
+    document.getElementById('time').value = now.toTimeString().slice(0,5);
 
-    const loadEntries = () => JSON.parse(localStorage.getItem('clusterMigraineLog') || '[]');
-    const saveEntries = (data) => localStorage.setItem('clusterMigraineLog', JSON.stringify(data));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const newEntry = {};
+      formData.forEach((value, key) => newEntry[key] = value);
 
-    function saveEntry() {
-      const entry = {
-        date: dateInput.value,
-        time: timeInput.value,
-        severity: document.getElementById('severity').value,
-        duration: document.getElementById('duration').value,
-        exercise: document.getElementById('exercise').value,
-        exerciseDetails: document.getElementById('exerciseDetails').value,
-        trigger: document.getElementById('trigger').value,
-        notes: document.getElementById('notes').value
-      };
-
-      if (!entry.date || !entry.time || entry.severity === '') {
+      if (!newEntry.date || !newEntry.time || newEntry.severity === '') {
         alert('Completează minim data, ora și severitatea.');
         return;
       }
 
-      const entries = loadEntries();
-      entries.unshift(entry);
-      saveEntries(entries);
-      alert('Episod adăugat.');
-      location.reload();
-    }
+      const saved = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      saved.unshift(newEntry);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
+      form.reset();
+      document.getElementById('date').valueAsDate = new Date();
+      document.getElementById('time').value = new Date().toTimeString().slice(0,5);
+      alert('Episod salvat!');
+    });
   </script>
 </body>
 </html>
