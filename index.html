@@ -10,6 +10,11 @@
   <div class="container p-4 max-w-md mx-auto">
     <h1 class="title">Jurnal Migrene Cluster</h1>
 
+    <div class="nav-links">
+      <a href="edit.html">Vezi / Editează episoade</a>
+      <a href="chart.html">Grafic Migrene</a>
+    </div>
+
     <form id="migraineForm" class="card p-4 space-y-3">
       <input name="date" type="date" required />
       <input name="time" type="time" required />
@@ -37,11 +42,7 @@
       <input name="medrol" type="number" min="0" max="10" placeholder="Medrol (0-10)" value="0" />
       <button id="addEntry" type="submit" style="background-color: royalblue; color: white;">Adaugă episod</button>
     </form>
-
-    <nav class="links mt-4 space-x-4">
-      <a href="edit.html">Vezi / Editează episoade</a>
-      <a href="chart.html">Grafic Migrene</a>
-    </nav>
+    
   </div>
 
   <script src="index.js"></script>

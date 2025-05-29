@@ -24,7 +24,7 @@ form.addEventListener('submit', e => {
     notes: inputs.notes.value,
     verapamil: inputs.verapamil.value || "6",
     medrol: inputs.medrol.value || "0",
-    sumatriptan: inputs.severity.value, // Nr pastile sumatriptan
+    sumatriptan: inputs.severity.value, // redundant, dar explicit
   };
 
   if (!entry.date || !entry.time || entry.severity === '') {
@@ -35,10 +35,18 @@ form.addEventListener('submit', e => {
   saved.unshift(entry);
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
 
+  alert("Episod adăugat cu succes!");
+
+  // Resetare formular și re-populare cu valorile implicite
   form.reset();
 
-  // Re-prepopulate date and time
+  // Re-prepopulate cu valori default
   const now = new Date();
   inputs.date.value = now.toISOString().slice(0, 10);
   inputs.time.value = now.toTimeString().slice(0, 5);
+  inputs.severity.value = 1;
+  inputs.duration.value = 15;
+  inputs.exercise.value = "Da";
+  inputs.verapamil.value = 6;
+  inputs.medrol.value = 0;
 });
