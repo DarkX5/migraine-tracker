@@ -10,7 +10,7 @@ body {
 input, textarea {
   display: block;
   width: 100%;
-  margin: 0.5rem 0;
+  margin: 0.5rem -0.5rem;
   padding: 0.5rem;
 }
 button {
@@ -23,8 +23,8 @@ button {
 }
 .card {
   background: white;
-  padding: 1rem;
-  margin: 0.5rem 0;
+  padding: 2rem;
+  margin: 0;
   border-radius: 5px;
 }
 a {
