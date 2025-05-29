@@ -36,6 +36,7 @@ form.addEventListener('submit', e => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
 
   alert("Episod adăugat cu succes!");
+  exportData(); // Export automat după adăugare
 
   // Resetare formular și re-populare cu valorile implicite
   form.reset();
@@ -49,4 +50,49 @@ form.addEventListener('submit', e => {
   inputs.exercise.value = "Da";
   inputs.verapamil.value = 6;
   inputs.medrol.value = 0;
+});
+
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const importInput = document.getElementById('importInput');
+
+// Exportare manuală sau automată
+function exportData() {
+  const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (!data) return alert('Nu există date de exportat.');
+  
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `migrene_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// La click pe buton export
+exportBtn.addEventListener('click', exportData);
+
+// Importare din fișier
+importBtn.addEventListener('click', () => importInput.click());
+
+importInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (!Array.isArray(imported)) throw new Error('Fișierul nu este valid.');
+
+      if (!confirm('Acest import va înlocui toate datele existente. Continuăm?')) return;
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(imported));
+      alert('Import realizat cu succes!');
+    } catch (err) {
+      alert('Fișier invalid sau corupt.');
+    }
+  };
+  reader.readAsText(file);
 });
