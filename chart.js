@@ -12,7 +12,8 @@ entries.sort((a,b) => {
 
 const labels = entries.map(e => `${e.date} ${e.time}`);
 
-const sumatriptanData = entries.map(e => Number(e.sumatriptan) || 0);
+// const sumatriptanData = entries.map(e => Number(e.sumatriptan) || 0);
+const sumatriptanData = entries.map(e => Number(e.severity) || 0);
 const verapamilData = entries.map(e => Number(e.verapamil) || 0);
 const medrolData = entries.map(e => Number(e.medrol) || 0);
 
@@ -44,7 +45,7 @@ const migraineChart = new Chart(ctx, {
       {
         label: 'Medrol (pastile)',
         data: medrolData,
-        borderColor: 'darkorange',
+        borderColor: 'royalblue',
         backgroundColor: 'rgba(255, 140, 0, 0.1)',
         fill: false,
         tension: 0.3,
