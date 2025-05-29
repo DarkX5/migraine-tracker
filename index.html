@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Migrene Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    h1 { color: #333; }
+    label, input, button { display: block; margin: 1rem 0; }
+    button { padding: 0.5rem 1rem; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #004999; }
+  </style>
+</head>
+<body>
+  <h1>Migrene Tracker</h1>
+  <p>Jurnal simplu pentru a nota episoadele de migrene de tip cluster.</p>
+  <form id="migraineForm">
+    <label for="date">Data:</label>
+    <input type="date" id="date" required />
+    <label for="intensity">Intensitate (1-10):</label>
+    <input type="number" id="intensity" min="1" max="10" required />
+    <label for="notes">Note:</label>
+    <input type="text" id="notes" placeholder="Comentarii..." />
+    <button type="submit">Adaugă episod</button>
+  </form>
+  <h2>Episoade</h2>
+  <ul id="episodesList"></ul>
+
+<script>
+  const form = document.getElementById('migraineForm');
+  const list = document.getElementById('episodesList');
+
+  function loadEpisodes() {
+    const episodes = JSON.parse(localStorage.getItem('migreneEpisodes') || '[]');
+    list.innerHTML = '';
+    episodes.forEach(ep => {
+      const li = document.createElement('li');
+      li.textContent = `${ep.date} - Intensitate: ${ep.intensity} - Note: ${ep.notes}`;
+      list.appendChild(li);
+    });
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const date = document.getElementById('date').value;
+    const intensity = document.getElementById('intensity').value;
+    const notes = document.getElementById('notes').value;
+
+    const episodes = JSON.parse(localStorage.getItem('migreneEpisodes') || '[]');
+    episodes.push({date, intensity, notes});
+    localStorage.setItem('migreneEpisodes', JSON.stringify(episodes));
+    loadEpisodes();
+    form.reset();
+  });
+
+  loadEpisodes();
+</script>
+
+</body>
+</html>
