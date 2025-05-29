@@ -1,63 +1,73 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Migrene Tracker</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon-192.png" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    h1 { color: #333; }
-    label, input, button { display: block; margin: 1rem 0; }
-    button { padding: 0.5rem 1rem; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #004999; }
+    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+    input, textarea, button, select { display: block; width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; }
   </style>
 </head>
 <body>
-  <h1>Migrene Tracker</h1>
-  <p>Jurnal simplu pentru a nota episoadele de migrene de tip cluster.</p>
-  <form id="migraineForm">
-    <label for="date">Data:</label>
-    <input type="date" id="date" required />
-    <label for="intensity">Intensitate (1-10):</label>
-    <input type="number" id="intensity" min="1" max="10" required />
-    <label for="notes">Note:</label>
-    <input type="text" id="notes" placeholder="Comentarii..." />
-    <button type="submit">Adaugă episod</button>
-  </form>
-  <h2>Episoade</h2>
-  <ul id="episodesList"></ul>
+  <h1>Jurnal Migrene Cluster</h1>
 
-<script>
-  const form = document.getElementById('migraineForm');
-  const list = document.getElementById('episodesList');
+  <label>Data</label>
+  <input id="date" type="date">
+  <label>Ora</label>
+  <input id="time" type="time">
+  <label>Severitate (nr pastile Sumatriptan, 0-5)</label>
+  <input id="severity" type="number" min="0" max="5">
+  <label>Durată atac (minute)</label>
+  <input id="duration" type="number">
+  <label>Exerciții fizice?</label>
+  <select id="exercise">
+    <option value="Da" selected>Da</option>
+    <option value="Nu">Nu</option>
+  </select>
+  <label>Detalii exercițiu</label>
+  <input id="exerciseDetails">
+  <label>Factor declanșator</label>
+  <input id="trigger">
+  <label>Observații</label>
+  <textarea id="notes"></textarea>
+  <button onclick="saveEntry()">Adaugă episod</button>
+  <button onclick="location.href='edit.html'">Editează episoadele</button>
 
-  function loadEpisodes() {
-    const episodes = JSON.parse(localStorage.getItem('migreneEpisodes') || '[]');
-    list.innerHTML = '';
-    episodes.forEach(ep => {
-      const li = document.createElement('li');
-      li.textContent = `${ep.date} - Intensitate: ${ep.intensity} - Note: ${ep.notes}`;
-      list.appendChild(li);
-    });
-  }
+  <script>
+    const dateInput = document.getElementById('date');
+    const timeInput = document.getElementById('time');
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const date = document.getElementById('date').value;
-    const intensity = document.getElementById('intensity').value;
-    const notes = document.getElementById('notes').value;
+    const now = new Date();
+    dateInput.value = now.toISOString().split('T')[0];
+    timeInput.value = now.toTimeString().slice(0,5);
 
-    const episodes = JSON.parse(localStorage.getItem('migreneEpisodes') || '[]');
-    episodes.push({date, intensity, notes});
-    localStorage.setItem('migreneEpisodes', JSON.stringify(episodes));
-    loadEpisodes();
-    form.reset();
-  });
+    const loadEntries = () => JSON.parse(localStorage.getItem('clusterMigraineLog') || '[]');
+    const saveEntries = (data) => localStorage.setItem('clusterMigraineLog', JSON.stringify(data));
 
-  loadEpisodes();
-</script>
+    function saveEntry() {
+      const entry = {
+        date: dateInput.value,
+        time: timeInput.value,
+        severity: document.getElementById('severity').value,
+        duration: document.getElementById('duration').value,
+        exercise: document.getElementById('exercise').value,
+        exerciseDetails: document.getElementById('exerciseDetails').value,
+        trigger: document.getElementById('trigger').value,
+        notes: document.getElementById('notes').value
+      };
 
+      if (!entry.date || !entry.time || entry.severity === '') {
+        alert('Completează minim data, ora și severitatea.');
+        return;
+      }
+
+      const entries = loadEntries();
+      entries.unshift(entry);
+      saveEntries(entries);
+      alert('Episod adăugat.');
+      location.reload();
+    }
+  </script>
 </body>
 </html>
